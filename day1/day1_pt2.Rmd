@@ -1,0 +1,76 @@
+---
+title: "day1_pt1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(testthat)
+
+target <- 2020
+```
+
+# inputs
+```{r}
+
+test_exp <- c(1721,
+979,
+366,
+299,
+675,
+1456) 
+
+
+my_exp <- read.csv("input_pt1.csv", col.names = "x") %>% 
+  pull(x)
+
+```
+
+# function
+
+
+```{r}
+calculate_expense_product2 <- function(inp, target) {
+  
+  # iterate through the vector of inputs (not required to test the last value as a result would have already been found)
+  for(i in 1:length(inp - 1)) {
+    
+    # value of the input
+    x <- inp[i]
+    
+    # remove the value of the input
+    new_inp <- inp[-i]
+    
+    # iterate through the remaining inputs
+    for(n in 1:length(new_inp)) {
+      # value of the new input
+      y <- new_inp[n]
+      # value to add to reach the target
+      z <- target - y - x
+      
+      # if z is in then input vector, multiply x, y, and z then return the product
+      if(z %in% new_inp) {
+        product <- x * y *z
+        return(product)
+        break()
+      }
+    }
+  }
+}
+```
+
+# run the test case
+expect to equal 241861950
+```{r}
+expect_equal(calculate_expense_product2(test_exp, target), 241861950)
+```
+
+
+# answer
+```{r}
+calculate_expense_product2(my_exp, target)
+```
+
+
+
