@@ -1,0 +1,63 @@
+---
+title: "day2_pt1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(testthat)
+```
+
+# functions
+```{r}
+extract_pwds <- function(x) {
+  # take the text input and conver to a tibble to then extract the relevant parts using regex
+  x %>% 
+    enframe(name = NULL) %>% 
+    mutate(pos1 = as.numeric(str_extract(value, "^([^-]*)")),
+         pos2 = as.numeric(str_extract(value, "(?<=-)[^\\s]*")),
+         letter = str_extract(value, "(?<=\\s)[^:]*"),
+         pwd = str_extract(value, "(?<=:\\s).*")) %>% 
+    select(-value)
+}
+
+
+process_pwds2 <- function(x) {
+  # the letter must appear in one of the two specified positions
+  x %>% 
+    mutate(pos1_contains = ifelse(str_sub(pwd, pos1, pos1) == letter, 1, 0),
+         pos2_contains = ifelse(str_sub(pwd, pos2, pos2) == letter, 1, 0),
+         criteria_met = ifelse(pos1_contains + pos2_contains == 1, TRUE, FALSE)) %>% 
+  filter(criteria_met) %>%
+    count() %>% 
+    pull()
+}
+
+
+```
+
+# inputs
+```{r}
+test_pwds <- readLines("day2_testinput_pt1.txt") %>% 
+  extract_pwds()
+
+
+pwds <- readLines("day2_input_pt1.txt") %>% 
+  extract_pwds()
+```
+
+
+# test
+```{r}
+expect_equal(process_pwds2(test_pwds), 1)
+  
+```
+
+# solution
+```{r}
+process_pwds2(pwds)
+
+```
+

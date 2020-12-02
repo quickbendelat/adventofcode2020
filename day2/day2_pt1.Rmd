@@ -1,0 +1,62 @@
+---
+title: "day2_pt1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(testthat)
+```
+
+# functions
+```{r}
+extract_pwds <- function(x) {
+  # take the text input and conver to a tibble to then extract the relevant parts using regex
+  x %>% 
+    enframe(name = NULL) %>% 
+    mutate(min_count = as.numeric(str_extract(value, "^([^-]*)")),
+         max_count = as.numeric(str_extract(value, "(?<=-)[^\\s]*")),
+         letter = str_extract(value, "(?<=\\s)[^:]*"),
+         pwd = str_extract(value, "(?<=:\\s).*")) %>% 
+    select(-value)
+}
+
+
+process_pwds <- function(x) {
+  # the letter must appear least the min_count and no more than the max_count
+  x %>% 
+    mutate(criteria_met = ifelse(str_count(pwd, letter) >= min_count & str_count(pwd, letter) <= max_count, TRUE, FALSE)) %>% 
+  filter(criteria_met) %>%
+    count() %>% 
+    pull()
+}
+
+
+```
+
+# inputs
+```{r}
+test_pwds <- readLines("day2_testinput_pt1.txt") %>% 
+  extract_pwds()
+
+
+pwds <- readLines("day2_input_pt1.txt") %>% 
+  extract_pwds()
+```
+
+
+# test
+```{r}
+
+expect_equal(process_pwds(test_pwds), 2)
+  
+```
+
+# solution
+```{r}
+process_pwds(pwds)
+
+```
+
